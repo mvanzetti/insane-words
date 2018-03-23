@@ -131,7 +131,7 @@ def train(args):
     model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 
     # train the model
-    checkpoint_filepath = "saves/weights-improvement-{epoch:02d}-{loss:.2f}.hdf5"
+    checkpoint_filepath = saves_folder + "/weights-improvement-{epoch:02d}-{loss:.2f}.hdf5"
     checkpoint = ModelCheckpoint(checkpoint_filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
     callbacks_list = [checkpoint]
 

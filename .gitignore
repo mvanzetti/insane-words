@@ -2,7 +2,8 @@
 datasets
 saves
 explore/saves
-explore/.ipynb_checkpoints/
+explore/.ipynb_checkpoints
 .floydexpt
 .floydignore
 backups/
+saves/models
