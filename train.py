@@ -4,6 +4,7 @@ from keras.layers.recurrent import LSTM
 from keras.utils.data_utils import get_file
 from keras.callbacks import ModelCheckpoint
 from keras.optimizers import RMSprop
+from process import TextProcessor
 
 import numpy as np
 import random
@@ -14,8 +15,9 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_dir', type=str, default='datasets/i_malavoglia_short.txt',
+    parser.add_argument('--input_file', type=str, default='datasets/leopardi_short.txt',
                         help='data directory containing input dataset')
+
     parser.add_argument('--save_dir', type=str, default='saves',
                         help='directory to store checkpointed models')
 
@@ -63,67 +65,67 @@ def main():
 
 
 def train(args):
-    path = args.data_dir
+    input_file = args.input_file
     saves_folder = args.save_dir
 
     # text prep
-    try:
-        text = open(path).read().lower()
-    except UnicodeDecodeError:
-        import codecs
-        text = codecs.open(path, encoding='utf-8').read().lower()
+    # try:
+    #     text = open(input_file).read().lower()
+    # except UnicodeDecodeError:
+    #     import codecs
+    #     text = codecs.open(input_file, encoding='utf-8').read().lower()
 
-    print('corpus length:', len(text))
+    text_processor = TextProcessor(input_file)
 
-    chars = set(text)
-    words = set(open(path).read().lower().split())
+    # words = set(open(input_file).read().lower().split())
 
-    print("chars:", type(chars))
-    print("words", type(words))
-    print("total number of unique words", len(words))
-    print("total number of unique chars", len(chars))
+    text_processor.preprocess()
+    text_processor.print_info()
 
-    word_indices = dict((c, i) for i, c in enumerate(words))
-    indices_word = dict((i, c) for i, c in enumerate(words))
+    text_processor.prepare_sentences()
+    text_processor.vectorize()
 
-    print("word_indices", type(word_indices), "length:", len(word_indices))
-    print("indices_words", type(indices_word), "length", len(indices_word))
+    # word_indices = dict((c, i) for i, c in enumerate(words))
+    # indices_word = dict((i, c) for i, c in enumerate(words))
 
-    maxlen = 30
-    step = 3
-    print("maxlen:", maxlen, "step:", step)
-    sentences = []
-    next_words = []
-
-    list_words = text.lower().split()
-
-    for i in range(0, len(list_words) - maxlen, step):
-        sentences2 = ' '.join(list_words[i: i + maxlen])
-        sentences.append(sentences2)
-        next_words.append((list_words[i + maxlen]))
-    print('nb sequences(length of sentences):', len(sentences))
-    print("length of next_word", len(next_words))
-
-    # vectorize words
-    print('Vectorization...')
-    X = np.zeros((len(sentences), maxlen, len(words)), dtype=np.bool)
-    y = np.zeros((len(sentences), len(words)), dtype=np.bool)
-    for i, sentence in enumerate(sentences):
-        for t, word in enumerate(sentence.split()):
-            # print(i,t,word)
-            X[i, t, word_indices[word]] = 1
-        y[i, word_indices[next_words[i]]] = 1
+    # maxlen = 30
+    # step = 3
+    # print("maxlen:", maxlen, "step:", step)
+    # sentences = []
+    # next_words = []
+    #
+    # list_words = text_processor.processed.split()
+    #
+    # for i in range(0, len(list_words) - maxlen, step):
+    #     sentences2 = ' '.join(list_words[i: i + maxlen])
+    #     sentences.append(sentences2)
+    #     next_words.append((list_words[i + maxlen]))
+    # print('nb sequences(length of sentences):', len(sentences))
+    # print("length of next_word", len(next_words))
+    #
+    # # vectorize words
+    # print('Vectorization...')
+    # X = np.zeros((len(sentences), maxlen, len(text_processor.words_set)), dtype=np.bool)
+    # y = np.zeros((len(sentences), len(text_processor.words_set)), dtype=np.bool)
+    # for i, sentence in enumerate(sentences):
+    #     for t, word in enumerate(sentence.split()):
+    #         # print(i, t, word)
+    #         X[i, t, text_processor.word_indices[word]] = 1
+    #     y[i, text_processor.word_indices[next_words[i]]] = 1
 
     # build the model: 2 stacked LSTM
+    maxlen = text_processor.maxlen
+    X = text_processor.X
+    y = text_processor.y
     units = args.rnn_units
 
     print('Build model...')
     model = Sequential()
-    model.add(LSTM(units, return_sequences=True, input_shape=(maxlen, len(words))))
+    model.add(LSTM(units, return_sequences=True, input_shape=(maxlen, len(text_processor.words_set))))
     model.add(Dropout(0.2))
     model.add(LSTM(units, return_sequences=False))
     model.add(Dropout(0.2))
-    model.add(Dense(len(words)))
+    model.add(Dense(len(text_processor.words_set)))
     # model.add(Dense(1000))
     model.add(Activation('softmax'))
 
@@ -141,6 +143,7 @@ def train(args):
     model.save(model_file, overwrite=True)
 
     print("Training completed.")
+
 
 if __name__ == '__main__':
     main()
