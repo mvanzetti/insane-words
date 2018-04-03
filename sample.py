@@ -22,6 +22,9 @@ def main():
                              '(e.g.: < 1,0 more confident and more conservative, '
                              '> 1.0 more diversity at cost of spelling mistakes)')
 
+    parser.add_argument('--model_filename', type=str, default='model.hdf5',
+                        help='file that stores the trained model')
+
     args = parser.parse_args()
     sample(args)
 
@@ -73,8 +76,9 @@ def sample(args):
     saves_folder = args.load_dir
     maxlen_gen = args.maxlen_gen
     temperature = args.temperature
+    model_filename = args.model_filename
 
-    model_file = saves_folder + '/model.hdf5'
+    model_file = saves_folder + '/' + model_filename
 
     model = load_model(model_file)
 

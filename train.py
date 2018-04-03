@@ -5,12 +5,14 @@ from keras.utils.data_utils import get_file
 from keras.callbacks import ModelCheckpoint
 from keras.optimizers import RMSprop
 from process import TextProcessor
+from model import TimeHistory
 
 import numpy as np
 import random
 import sys
 import os
 import argparse
+import time
 
 
 def main():
@@ -135,14 +137,18 @@ def train(args):
     # train the model
     checkpoint_filepath = saves_folder + "/weights-improvement-{epoch:02d}-{loss:.2f}.hdf5"
     checkpoint = ModelCheckpoint(checkpoint_filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
-    callbacks_list = [checkpoint]
+    time_callback = TimeHistory()
+    callbacks_list = [checkpoint, time_callback]
 
-    model_file = saves_folder + '/model.hdf5'
+    time_str = time.strftime("%Y%m%d-%H%M%S")
+    model_file = saves_folder + '/model-' + time_str + '.hdf5'
 
     history = model.fit(X, y, batch_size=args.batch_size, epochs=args.epochs, callbacks=callbacks_list)
+
     model.save(model_file, overwrite=True)
 
     print("Training completed.")
+    # print(time_callback.times)
 
 
 if __name__ == '__main__':
