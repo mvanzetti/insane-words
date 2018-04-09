@@ -1,18 +1,6 @@
-from keras.models import Sequential
-from keras.layers.core import Dense, Activation, Dropout
-from keras.layers.recurrent import LSTM
-from keras.utils.data_utils import get_file
-from keras.callbacks import ModelCheckpoint
-from keras.optimizers import RMSprop
 from process import TextProcessor
-from model import TimeHistory
-
-import numpy as np
-import random
-import sys
-import os
+from model import Model
 import argparse
-import time
 
 
 def main():
@@ -70,83 +58,40 @@ def train(args):
     input_file = args.input_file
     saves_folder = args.save_dir
 
-    # text prep
-    # try:
-    #     text = open(input_file).read().lower()
-    # except UnicodeDecodeError:
-    #     import codecs
-    #     text = codecs.open(input_file, encoding='utf-8').read().lower()
-
     text_processor = TextProcessor(input_file)
-
-    # words = set(open(input_file).read().lower().split())
-
     text_processor.preprocess()
+    text_processor.build_dicts()
     text_processor.print_info()
-
-    text_processor.prepare_sentences()
     text_processor.vectorize()
 
-    # word_indices = dict((c, i) for i, c in enumerate(words))
-    # indices_word = dict((i, c) for i, c in enumerate(words))
-
-    # maxlen = 30
-    # step = 3
-    # print("maxlen:", maxlen, "step:", step)
-    # sentences = []
-    # next_words = []
-    #
-    # list_words = text_processor.processed.split()
-    #
-    # for i in range(0, len(list_words) - maxlen, step):
-    #     sentences2 = ' '.join(list_words[i: i + maxlen])
-    #     sentences.append(sentences2)
-    #     next_words.append((list_words[i + maxlen]))
-    # print('nb sequences(length of sentences):', len(sentences))
-    # print("length of next_word", len(next_words))
-    #
-    # # vectorize words
-    # print('Vectorization...')
-    # X = np.zeros((len(sentences), maxlen, len(text_processor.words_set)), dtype=np.bool)
-    # y = np.zeros((len(sentences), len(text_processor.words_set)), dtype=np.bool)
-    # for i, sentence in enumerate(sentences):
-    #     for t, word in enumerate(sentence.split()):
-    #         # print(i, t, word)
-    #         X[i, t, text_processor.word_indices[word]] = 1
-    #     y[i, text_processor.word_indices[next_words[i]]] = 1
-
-    # build the model: 2 stacked LSTM
-    maxlen = text_processor.maxlen
     X = text_processor.X
     y = text_processor.y
     units = args.rnn_units
+    learning_rate = args.learning_rate
+    batch_size = args.batch_size
+    epochs = args.epochs
+    seq_len = X.shape[1]
+    dict_num = X.shape[2]
 
-    print('Build model...')
-    model = Sequential()
-    model.add(LSTM(units, return_sequences=True, input_shape=(maxlen, len(text_processor.words_set))))
-    model.add(Dropout(0.2))
-    model.add(LSTM(units, return_sequences=False))
-    model.add(Dropout(0.2))
-    model.add(Dense(len(text_processor.words_set)))
-    # model.add(Dense(1000))
-    model.add(Activation('softmax'))
+    model = Model(units, seq_len, dict_num, learning_rate)
+    model.set_saves_folder(saves_folder)
+    model.compile()
+    model.remove_checkpoints()
+    model.train(X, y, batch_size, epochs)
+    model.print_summary()
 
-    optimizer = RMSprop(lr=args.learning_rate)
-    model.compile(loss='categorical_crossentropy', optimizer=optimizer)
-
-    # train the model
-    checkpoint_filepath = saves_folder + "/weights-improvement-{epoch:02d}-{loss:.2f}.hdf5"
-    checkpoint = ModelCheckpoint(checkpoint_filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
-    time_callback = TimeHistory()
-    callbacks_list = [checkpoint, time_callback]
-
-    time_str = time.strftime("%Y%m%d-%H%M%S")
-    model_file = saves_folder + '/model-' + time_str + '.hdf5'
-
-    history = model.fit(X, y, batch_size=args.batch_size, epochs=args.epochs, callbacks=callbacks_list)
-
-    model.save(model_file, overwrite=True)
-
+    # # train the model
+    # checkpoint_filepath = saves_folder + "/weights-improvement-{epoch:02d}-{loss:.2f}.hdf5"
+    # checkpoint = ModelCheckpoint(checkpoint_filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
+    # time_callback = TimeHistory()
+    # callbacks_list = [checkpoint, time_callback]
+    #
+    # time_str = time.strftime("%Y%m%d-%H%M%S")
+    # model_file = saves_folder + '/model-' + time_str + '.hdf5'
+    #
+    # history = model.fit(X, y, batch_size=args.batch_size, epochs=args.epochs, callbacks=callbacks_list)
+    #
+    # model.save(model_file, overwrite=True)
 
     print("Training completed.")
     # print(time_callback.times)

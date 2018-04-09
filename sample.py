@@ -92,14 +92,14 @@ def sample(args):
     text_processor.prepare_sentences()
 
     if seed is None:
-        sentence = generate_seed_sentence(text_processor.list_words, text_processor.maxlen)
+        sentence = generate_seed_sentence(text_processor.list_words, text_processor.sampling_maxlen)
     else:
         sentence = seed.split()
 
     print("seed:")
     print(' '.join(sentence))
     result = sample_words(model, text_processor.word_indices, text_processor.indices_word, text_processor.words_set,
-                          sentence, temperature, text_processor.maxlen, maxlen_gen)
+                          sentence, temperature, text_processor.sampling_maxlen, maxlen_gen)
 
     print()
     print("sampled:")
