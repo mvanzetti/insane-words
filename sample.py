@@ -25,6 +25,9 @@ def main():
     parser.add_argument('--model_filename', type=str, default='model.hdf5',
                         help='file that stores the trained model')
 
+    parser.add_argument('--seed', type=str, default=None,
+                        help='user provided seed')
+
     args = parser.parse_args()
     sample(args)
 
@@ -77,6 +80,7 @@ def sample(args):
     maxlen_gen = args.maxlen_gen
     temperature = args.temperature
     model_filename = args.model_filename
+    seed = args.seed
 
     model_file = saves_folder + '/' + model_filename
 
@@ -86,7 +90,11 @@ def sample(args):
     text_processor.preprocess()
     text_processor.print_info()
     text_processor.prepare_sentences()
-    sentence = generate_seed_sentence(text_processor.list_words, text_processor.maxlen)
+
+    if seed is None:
+        sentence = generate_seed_sentence(text_processor.list_words, text_processor.maxlen)
+    else:
+        sentence = seed.split()
 
     print("seed:")
     print(' '.join(sentence))

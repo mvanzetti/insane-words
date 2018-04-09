@@ -1,6 +1,6 @@
 .idea
 datasets
-saves
+saves/
 explore/saves
 explore/.ipynb_checkpoints
 .floydexpt
@@ -8,3 +8,4 @@ explore/.ipynb_checkpoints
 backups/
 saves/models
 __pycache__/
+__pycache__

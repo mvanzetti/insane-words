@@ -147,6 +147,7 @@ def train(args):
 
     model.save(model_file, overwrite=True)
 
+
     print("Training completed.")
     # print(time_callback.times)
 
