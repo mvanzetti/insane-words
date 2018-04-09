@@ -73,6 +73,9 @@ def train(args):
     seq_len = X.shape[1]
     dict_num = X.shape[2]
 
+    print("X.shape", X.shape)
+    print("y.shape", y.shape)
+
     model = Model(units, seq_len, dict_num, learning_rate)
     model.set_saves_folder(saves_folder)
     model.compile()

@@ -32,7 +32,7 @@ class Model:
         self.model.add(Dropout(0.2))
         self.model.add(LSTM(self.layer_units, return_sequences=False))
         self.model.add(Dropout(0.2))
-        self.model.add(Dense(seq_len))
+        self.model.add(Dense(dict_len))
         self.model.add(Activation('softmax'))
 
         self.optimizer = RMSprop(lr=learning_rate)

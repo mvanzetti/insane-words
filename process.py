@@ -102,7 +102,7 @@ class TextProcessor:
 
             return sampled_sentences, sampled_next_words
 
-        sentences, next_words = sample_sentences(sampling_maxlen, sampling_step)
+        sentences, next_words = sample_sentences(self.processed, sampling_maxlen, sampling_step)
 
         print('Vectorizing...')
         self.num_sentences = len(sentences)
@@ -134,8 +134,6 @@ class TextProcessor:
     def print_info(self):
         chars = set(self.data)
         print('corpus length:', len(self.data))
-        print("chars:", type(chars))
-        print("words", type(self.words_set))
         print("total number of unique words", len(self.words_set))
         print("total number of unique chars", len(chars))
 
