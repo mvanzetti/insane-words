@@ -36,6 +36,9 @@ def main():
     #                     help='save frequency')
     # parser.add_argument('--grad_clip', type=float, default=5.,
     #                     help='clip gradients at this value')
+    parser.add_argument("optimizer",
+                        help='optimizer to use for the training',
+                        choices=['rmsprop', 'adam'], default='rmsprop')
     parser.add_argument('--learning_rate', type=float, default=0.001,
                         help='learning rate')
     # parser.add_argument('--decay_rate', type=float, default=0.97,
@@ -67,6 +70,7 @@ def train(args):
     X = text_processor.X
     y = text_processor.y
     units = args.rnn_units
+    optimizer = args.optimizer
     learning_rate = args.learning_rate
     batch_size = args.batch_size
     epochs = args.epochs
@@ -76,7 +80,8 @@ def train(args):
     print("X.shape", X.shape)
     print("y.shape", y.shape)
 
-    model = Model(units, seq_len, dict_num, learning_rate)
+    model = Model(units, seq_len, dict_num, optimizer, learning_rate)
+    model.print_info()
     model.set_saves_folder(saves_folder)
     model.compile()
     model.remove_checkpoints()

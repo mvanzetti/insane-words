@@ -2,7 +2,9 @@ from keras.models import Sequential
 from keras.layers.core import Dense, Activation, Dropout
 from keras.layers.recurrent import LSTM
 from keras.callbacks import ModelCheckpoint
-from keras.optimizers import RMSprop
+from keras.optimizers import RMSprop, Adam
+import matplotlib.pyplot as plt
+import numpy as np
 import keras
 import time
 import os
@@ -21,21 +23,30 @@ class TimeHistory(keras.callbacks.Callback):
 
 
 class Model:
+    """
+    Stacked LSTM Model
+    """
 
-    def __init__(self, units, seq_len, dict_len, learning_rate, dropout_rate=0.2):
+    def __init__(self, units, seq_len, dict_len, optimizer='rmsprop', learning_rate=0.001, dropout_rate=0.2):
         self.layer_units = units
+        self.input_shape = (seq_len, dict_len)
         self.dropout_rate = dropout_rate
+        self.learning_rate = learning_rate
 
         self.model = Sequential()
         self.model.add(
-            LSTM(self.layer_units, return_sequences=True, input_shape=(seq_len, dict_len)))
+            LSTM(self.layer_units, return_sequences=True, input_shape=self.input_shape))
         self.model.add(Dropout(0.2))
         self.model.add(LSTM(self.layer_units, return_sequences=False))
         self.model.add(Dropout(0.2))
         self.model.add(Dense(dict_len))
         self.model.add(Activation('softmax'))
 
-        self.optimizer = RMSprop(lr=learning_rate)
+        if optimizer == 'rmsprop':
+            self.optimizer = RMSprop(lr=self.learning_rate)
+        elif optimizer == 'adam':
+            self.optimizer = Adam(lr=self.learning_rate)
+
         self.loss = 'categorical_crossentropy'
 
         self.callbacks_list = []
@@ -54,12 +65,42 @@ class Model:
         self.model.compile(loss=self.loss, optimizer=self.optimizer)
 
     def train(self, x_tensor, y_tensor, batch_size, epochs):
+        print()
+        print("Training Parameters")
+        print()
+        print("Batch Size       ", batch_size)
+        print("Epochs           ", epochs)
+        print()
+
         self.history = self.model.fit(x_tensor, y_tensor, batch_size=batch_size, epochs=epochs,
                                       callbacks=self.callbacks_list)
 
         time_str = time.strftime("%Y%m%d-%H%M%S")
         model_file = self.saves_folder + '/model-' + time_str + '.hdf5'
         self.model.save(model_file, overwrite=True)
+
+        history_file = self.saves_folder + '/history-' + time_str + '.txt'
+        np.savetxt(history_file, np.array(self.history.history['loss']), delimiter=';')
+
+        plt.plot(self.history.history['loss'])
+        plt.title('model loss')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['train'], loc='upper left')
+        plt.show()
+
+    def print_info(self):
+        print()
+        print("Stacked LSTM")
+        print()
+        print("Layers           ", 2)
+        print("Layer Units      ", self.layer_units)
+        print("Input Shape      ", self.input_shape)
+        print("Dropout Rate     ", self.dropout_rate)
+        print("Optimizer        ", self.optimizer)
+        print("Learning Rate    ", self.learning_rate)
+        print("Loss             ", self.loss)
+        print()
 
     def print_summary(self):
         print(self.model.summary())

@@ -7,4 +7,5 @@ explore/.ipynb_checkpoints
 .floydignore
 backups/
 saves/models
+analysis/
 __pycache__
