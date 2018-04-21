@@ -7,19 +7,22 @@ from process import TextProcessor
 
 def main():
     parser = argparse.ArgumentParser()
-    # todo substitute with save dicts
+
     parser.add_argument('--input_file', type=str, default='datasets/leopardi_short.txt',
                         help='data directory containing input dataset')
 
+    parser.add_argument('--vocab_name', type=str, default='vocab',
+                        help='data directory containing input dataset')
+
     parser.add_argument('--load_dir', type=str, default='saves',
-                        help='directory where to load checkpointed models')
+                        help='directory where to load checkpointed models and vocabulary')
 
     parser.add_argument('--maxlen_gen', type=int, default=100,
                         help='maximum length (in words) of the generated sample')
 
     parser.add_argument('--temperature', type=float, default=1.0,
                         help='tune the softmax temperature during sampling '
-                             '(e.g.: < 1,0 more confident and more conservative, '
+                             '(e.g.: < 1.0 more confident and more conservative, '
                              '> 1.0 more diversity at cost of spelling mistakes)')
 
     parser.add_argument('--model_filename', type=str, default='model.hdf5',
@@ -77,6 +80,7 @@ def sample_words(model, word_indices, indices_word, words, sentence, temperature
 def sample(args):
     input_file = args.input_file
     saves_folder = args.load_dir
+    vocab_name = args.vocab_name
     maxlen_gen = args.maxlen_gen
     temperature = args.temperature
     model_filename = args.model_filename
@@ -87,10 +91,11 @@ def sample(args):
     model = load_model(model_file)
 
     text_processor = TextProcessor(input_file)
-    text_processor.preprocess()
-    text_processor.build_dicts()
-    text_processor.print_info()
-    text_processor.vectorize()
+    text_processor.load_vocabulary(saves_folder, vocab_name)
+    #text_processor.preprocess()
+    #text_processor.build_vocabulary()
+    text_processor.print_vocabulary_info()
+    #text_processor.vectorize()
 
     if seed is None:
         sentence = generate_seed_sentence(text_processor.processed.split(), 30)

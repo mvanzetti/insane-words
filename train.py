@@ -11,6 +11,9 @@ def main():
     parser.add_argument('--save_dir', type=str, default='saves',
                         help='directory to store checkpointed models')
 
+    parser.add_argument('--vocab_name', type=str, default='vocab',
+                        help='name of the vocabulary generated while processing the input dataset')
+
     # parser.add_argument('--load_weights', type=bool, default=False,
     #                     help='True to train starting from latest saved weights, default is False')
 
@@ -60,11 +63,11 @@ def main():
 def train(args):
     input_file = args.input_file
     saves_folder = args.save_dir
+    vocab_name = args.vocab_name
 
     text_processor = TextProcessor(input_file)
-    text_processor.preprocess()
-    text_processor.build_dicts()
-    text_processor.print_info()
+    text_processor.build_vocabulary(saves_folder, vocab_name)
+    text_processor.print_vocabulary_info()
     text_processor.vectorize()
 
     X = text_processor.X

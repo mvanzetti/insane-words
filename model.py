@@ -51,13 +51,18 @@ class Model:
 
         self.callbacks_list = []
         self.saves_folder = None
+        self.weights_folder = None
         self.history = None
 
     def set_saves_folder(self, saves_folder):
         self.saves_folder = saves_folder
+        self.weights_folder = os.path.join(saves_folder, "weights")
+
+        if not os.path.exists(self.weights_folder):
+            os.makedirs(self.weights_folder)
 
     def compile(self):
-        checkpoint_filepath = self.saves_folder + "/weights-improvement-{epoch:02d}-{loss:.2f}.hdf5"
+        checkpoint_filepath = self.weights_folder + "/weights-improvement-{epoch:02d}-{loss:.2f}.hdf5"
         checkpoint = ModelCheckpoint(checkpoint_filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
         time_callback = TimeHistory()
         self.callbacks_list = [checkpoint, time_callback]
@@ -82,12 +87,12 @@ class Model:
         history_file = self.saves_folder + '/history-' + time_str + '.txt'
         np.savetxt(history_file, np.array(self.history.history['loss']), delimiter=';')
 
-        plt.plot(self.history.history['loss'])
-        plt.title('model loss')
-        plt.ylabel('loss')
-        plt.xlabel('epoch')
-        plt.legend(['train'], loc='upper left')
-        plt.show()
+        # plt.plot(self.history.history['loss'])
+        # plt.title('model loss')
+        # plt.ylabel('loss')
+        # plt.xlabel('epoch')
+        # plt.legend(['train'], loc='upper left')
+        # plt.show()
 
     def print_info(self):
         print()
@@ -107,7 +112,7 @@ class Model:
 
     def remove_checkpoints(self):
         pattern = r"weights-improvement"
-        path = os.path.dirname(os.path.realpath(__file__)) + "/" + self.saves_folder
+        path = os.path.dirname(os.path.realpath(__file__)) + "/" + self.weights_folder
 
         for f in os.listdir(path):
             if re.search(pattern, f):

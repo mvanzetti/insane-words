@@ -1,6 +1,8 @@
 import re
 import codecs
 import numpy as np
+import os
+import pickle
 
 tag_to_char = {
     '<EOL>': '\n',
@@ -63,17 +65,46 @@ class TextProcessor:
         with codecs.open(input_file, "r", encoding) as f:
             self.data = f.read()
 
-        self.processed = self.data
+        # chars = set(self.data)
+        # print('corpus length:', len(self.data))
+        # print("total number of unique chars", len(chars))
 
-    def preprocess(self):
-        self.processed = self.replace_nonwords(self.data)
+        self.processed = self.pre_process(self.data)
 
-    def build_dicts(self):
+    def pre_process(self, data):
+        return self.replace_nonwords(data)
+
+    def build_vocabulary(self, saves_folder, vocab_name):
+        """
+        Build a vocabulary from the processed file and saves it
+        :param saves_folder: directory where to save the vocabulary
+        :param vocab_name: file name of the vocabulary file
+        :return:
+        """
         self.words_set = set(self.processed.split())
         self.word_indices = dict((c, i) for i, c in enumerate(self.words_set))
         self.indices_word = dict((i, c) for i, c in enumerate(self.words_set))
 
         self.dict_len = len(self.words_set)
+
+        vocab_filename = os.path.join(saves_folder, vocab_name + ".pkl")
+        vocab = {'words_set': self.words_set, 'word_indices': self.word_indices, 'indices_word': self.indices_word}
+        with open(vocab_filename, 'wb') as f:
+            pickle.dump(vocab, f)
+
+    def load_vocabulary(self, saves_folder, vocab_name):
+        """
+        Load provided vocabulary and assign the content to the current instance of the class
+        :param saves_folder: directory of the provided vocabulary
+        :param vocab_name: file name of the vocabulary file
+        """
+        vocab_filename = os.path.join(saves_folder, vocab_name + ".pkl")
+        with open(vocab_filename, 'rb') as f:
+            vocab = pickle.load(f)
+
+        self.words_set = vocab['words_set']
+        self.word_indices = vocab['word_indices']
+        self.indices_word = vocab['indices_word']
 
     def vectorize(self, sampling_maxlen=30, sampling_step=3):
         """
@@ -94,8 +125,8 @@ class TextProcessor:
             list_words = text.split()
 
             for pos in range(0, len(list_words) - sample_len, sample_step):
-                sentences2 = ' '.join(list_words[pos: pos + sample_len])
-                sampled_sentences.append(sentences2)
+                temp = ' '.join(list_words[pos: pos + sample_len])
+                sampled_sentences.append(temp)
                 sampled_next_words.append((list_words[pos + sample_len]))
             print('nb sequences(length of sentences):', len(sampled_sentences))
             print("length of next_word", len(sampled_next_words))
@@ -131,11 +162,7 @@ class TextProcessor:
 
         return processed
 
-    def print_info(self):
-        chars = set(self.data)
-        print('corpus length:', len(self.data))
-        print("total number of unique words", len(self.words_set))
-        print("total number of unique chars", len(chars))
-
-        print("word_indices", type(self.word_indices), "length:", len(self.word_indices))
-        print("indices_words", type(self.indices_word), "length", len(self.indices_word))
+    def print_vocabulary_info(self):
+        print("Total number of unique words", len(self.words_set))
+        print("     word_indices", type(self.word_indices), "length:", len(self.word_indices))
+        print("     indices_words", type(self.indices_word), "length", len(self.indices_word))
