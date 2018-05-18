@@ -9,3 +9,4 @@ backups/
 saves/models
 analysis/
 __pycache__
+/embeddings/

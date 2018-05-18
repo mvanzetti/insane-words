@@ -78,7 +78,7 @@ class TextProcessor:
         """
         Build a vocabulary from the processed file and saves it
         :param saves_folder: directory where to save the vocabulary
-        :param vocab_name: file name of the vocabulary file
+        :param vocab_name: file name of the vocabulary files
         :return:
         """
         self.words_set = set(self.processed.split())
@@ -89,8 +89,12 @@ class TextProcessor:
 
         vocab_filename = os.path.join(saves_folder, vocab_name + ".pkl")
         vocab = {'words_set': self.words_set, 'word_indices': self.word_indices, 'indices_word': self.indices_word}
+
+        if not os.path.isfile(saves_folder):
+            os.makedirs(saves_folder)
+
         with open(vocab_filename, 'wb') as f:
-            pickle.dump(vocab, f)
+                pickle.dump(vocab, f)
 
     def load_vocabulary(self, saves_folder, vocab_name):
         """
