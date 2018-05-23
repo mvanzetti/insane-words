@@ -8,7 +8,7 @@ from process import TextProcessor
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--input_file', type=str, default='datasets/leopardi_short.txt',
+    parser.add_argument('--input_file', type=str, default='data/leopardi_short.txt',
                         help='data directory containing input dataset')
 
     parser.add_argument('--vocab_name', type=str, default='vocab',

@@ -4,7 +4,7 @@ from process import TextProcessor
 
 class TestUtils(unittest.TestCase):
     def setUp(self):
-        self.text_processor = TextProcessor("datasets/input.txt")
+        self.text_processor = TextProcessor("data/input.txt")
         self.test_seps = [' ', '\n']
 
     def test_replace_nonwords(self):
@@ -14,13 +14,13 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(processed, expected)
 
     def test_vocab_manipulation(self):
-        self.text_processor.build_vocabulary("datasets", "vocab_tmp")
+        self.text_processor.build_vocabulary("data", "vocab_tmp")
 
         words_set = self.text_processor.words_set
         word_indices = self.text_processor.word_indices
         indices_word = self.text_processor.indices_word
 
-        self.text_processor.load_vocabulary("datasets", "vocab_tmp")
+        self.text_processor.load_vocabulary("data", "vocab_tmp")
 
         self.assertEqual(words_set, self.text_processor.words_set)
         self.assertEqual(word_indices, self.text_processor.word_indices)
