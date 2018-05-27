@@ -90,7 +90,7 @@ class TextProcessor:
         vocab_filename = os.path.join(saves_folder, vocab_name + ".pkl")
         vocab = {'words_set': self.words_set, 'word_indices': self.word_indices, 'indices_word': self.indices_word}
 
-        if not os.path.isfile(saves_folder):
+        if not os.path.exists(saves_folder):
             os.makedirs(saves_folder)
 
         with open(vocab_filename, 'wb') as f:

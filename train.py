@@ -5,7 +5,7 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input_file', type=str, default='data/leopardi_short.txt',
+    parser.add_argument('--input_file', type=str, default='datasets/leopardi_short.txt',
                         help='data directory containing input dataset')
 
     parser.add_argument('--save_dir', type=str, default='saves',
@@ -39,8 +39,8 @@ def main():
     #                     help='save frequency')
     # parser.add_argument('--grad_clip', type=float, default=5.,
     #                     help='clip gradients at this value')
-    parser.add_argument("optimizer",
-                        help='optimizer to use for the training',
+    parser.add_argument("--optimizer",
+                        help='optimizer to use for the training, default is rmsprop',
                         choices=['rmsprop', 'adam'], default='rmsprop')
     parser.add_argument('--learning_rate', type=float, default=0.001,
                         help='learning rate')
@@ -90,6 +90,7 @@ def train(args):
     model.remove_checkpoints()
     model.train(X, y, batch_size, epochs)
     model.print_summary()
+    # model.plot_model()
 
     # # train the model
     # checkpoint_filepath = saves_folder + "/weights-improvement-{epoch:02d}-{loss:.2f}.hdf5"

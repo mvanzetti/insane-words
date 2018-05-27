@@ -3,6 +3,7 @@ from keras.layers.core import Dense, Activation, Dropout
 from keras.layers.recurrent import LSTM
 from keras.callbacks import ModelCheckpoint
 from keras.optimizers import RMSprop, Adam
+from keras.utils import plot_model
 import matplotlib.pyplot as plt
 import numpy as np
 import keras
@@ -41,6 +42,9 @@ class Model:
         self.model.add(Dropout(0.2))
         self.model.add(Dense(dict_len))
         self.model.add(Activation('softmax'))
+
+        #
+        # plot_model(self.model, to_file='model.png')
 
         if optimizer == 'rmsprop':
             self.optimizer = RMSprop(lr=self.learning_rate)
@@ -106,6 +110,13 @@ class Model:
         print("Learning Rate    ", self.learning_rate)
         print("Loss             ", self.loss)
         print()
+
+    def plot_model(self):
+        plot_folder = os.path.join(self.saves_folder, "plots")
+
+        if not os.path.exists(plot_folder):
+            os.makedirs(plot_folder)
+        plot_model(self.model, to_file=plot_folder + '/model.png')
 
     def print_summary(self):
         print(self.model.summary())
