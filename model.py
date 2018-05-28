@@ -4,6 +4,7 @@ from keras.layers.recurrent import LSTM
 from keras.callbacks import ModelCheckpoint
 from keras.optimizers import RMSprop, Adam
 from keras.utils import plot_model
+from utils.custom_recurrents import AttentionDecoder
 import matplotlib.pyplot as plt
 import numpy as np
 import keras
@@ -39,6 +40,9 @@ class Model:
             LSTM(self.layer_units, return_sequences=True, input_shape=self.input_shape))
         self.model.add(Dropout(0.2))
         self.model.add(LSTM(self.layer_units, return_sequences=False))
+        # model.add(LSTM(150, input_shape=(n_timesteps_in, n_features), return_sequences=True))
+        # model.add(AttentionDecoder(150, n_features))
+        #self.model.add(AttentionDecoder(self.layer_units, dict_len))
         self.model.add(Dropout(0.2))
         self.model.add(Dense(dict_len))
         self.model.add(Activation('softmax'))
