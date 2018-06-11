@@ -3,6 +3,9 @@ import argparse
 import random
 from keras.models import load_model
 from process import TextProcessor
+from utils.custom_recurrents import AttentionDecoder
+from model import Model
+from model_with_attention import AttentionModel
 
 
 def main():
@@ -88,14 +91,14 @@ def sample(args):
 
     model_file = saves_folder + '/' + model_filename
 
-    model = load_model(model_file)
+    model = load_model(model_file, custom_objects={'AttentionDecoder': AttentionDecoder})
 
     text_processor = TextProcessor(input_file)
     text_processor.load_vocabulary(saves_folder, vocab_name)
-    #text_processor.preprocess()
-    #text_processor.build_vocabulary()
+    # text_processor.preprocess()
+    # text_processor.build_vocabulary()
     text_processor.print_vocabulary_info()
-    #text_processor.vectorize()
+    # text_processor.vectorize()
 
     if seed is None:
         sentence = generate_seed_sentence(text_processor.processed.split(), 30)
