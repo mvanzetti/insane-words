@@ -1,5 +1,6 @@
 from process import TextProcessor
 from model import Model
+from model_with_attention import AttentionModel
 import argparse
 
 
@@ -44,6 +45,8 @@ def main():
                         choices=['rmsprop', 'adam'], default='rmsprop')
     parser.add_argument('--learning_rate', type=float, default=0.001,
                         help='learning rate')
+
+    parser.add_argument('--use_attention', type=bool, default=False, help='use attention layer')
     # parser.add_argument('--decay_rate', type=float, default=0.97,
     #                    help='decay rate for rmsprop')
     # parser.add_argument('--gpu_mem', type=float, default=0.666,
@@ -83,13 +86,18 @@ def train(args):
     print("X.shape", X.shape)
     print("y.shape", y.shape)
 
-    model = Model(units, seq_len, dict_num, optimizer, learning_rate)
+    if args.use_attention:
+        model = AttentionModel(units, seq_len, dict_num, optimizer, learning_rate)
+    else:
+        model = Model(units, seq_len, dict_num, optimizer, learning_rate)
+
+    model.print_summary()
     model.print_info()
     model.set_saves_folder(saves_folder)
     model.compile()
     model.remove_checkpoints()
     model.train(X, y, batch_size, epochs)
-    model.print_summary()
+
     # model.plot_model()
 
     # # train the model

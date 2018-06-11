@@ -4,7 +4,6 @@ from keras.layers.recurrent import LSTM
 from keras.callbacks import ModelCheckpoint
 from keras.optimizers import RMSprop, Adam
 from keras.utils import plot_model
-from utils.custom_recurrents import AttentionDecoder
 import matplotlib.pyplot as plt
 import numpy as np
 import keras
@@ -35,18 +34,7 @@ class Model:
         self.dropout_rate = dropout_rate
         self.learning_rate = learning_rate
 
-        self.model = Sequential()
-        self.model.add(
-            LSTM(self.layer_units, return_sequences=True, input_shape=self.input_shape))
-        self.model.add(Dropout(0.2))
-        self.model.add(LSTM(self.layer_units, return_sequences=False))
-        # model.add(LSTM(150, input_shape=(n_timesteps_in, n_features), return_sequences=True))
-        # model.add(AttentionDecoder(150, n_features))
-        #self.model.add(AttentionDecoder(self.layer_units, dict_len))
-        self.model.add(Dropout(0.2))
-        self.model.add(Dense(dict_len))
-        self.model.add(Activation('softmax'))
-
+        self.model = self.define_model()
         #
         # plot_model(self.model, to_file='model.png')
 
@@ -61,6 +49,20 @@ class Model:
         self.saves_folder = None
         self.weights_folder = None
         self.history = None
+
+    def define_model(self):
+        dict_len = self.input_shape[1]
+
+        model = Sequential()
+        model.add(
+            LSTM(self.layer_units, return_sequences=True, input_shape=self.input_shape))
+        model.add(Dropout(0.2))
+        model.add(LSTM(self.layer_units, return_sequences=False))
+        model.add(Dropout(0.2))
+        model.add(Dense(dict_len))
+        model.add(Activation('softmax'))
+
+        return model
 
     def set_saves_folder(self, saves_folder):
         self.saves_folder = saves_folder
