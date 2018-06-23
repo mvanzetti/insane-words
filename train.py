@@ -22,8 +22,7 @@ def main():
     #                     help='character encoding of input.txt, from https://docs.python.org/3/library/codecs.html#standard-encodings')
     # parser.add_argument('--log_dir', type=str, default='logs',
     #                     help='directory containing tensorboard logs')
-    # parser.add_argument('--save_dir', type=str, default='save',
-    #                     help='directory to store checkpointed models')
+
     parser.add_argument('--rnn_units', type=int, default=512,
                         help='size of RNN hidden state')
     # parser.add_argument('--num_layers', type=int, default=2,
